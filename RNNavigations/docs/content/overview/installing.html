@@ -1,0 +1,123 @@
+===
+title: Installing
+subtitle: Getting it up and running
+created: 2011-07-02 01:51:01
+toc: overview
+index: 3
+===
+
+§§ blurb
+
+## Installing on Node.js
+
+Just require it away:
+
+~~~js~~~
+var black = require('/path/to/black')
+~~~~~~~~
+
+## Installing on the Browser
+
+In a browser, you'll need to either use [Browserify][] to emulate
+Node.js's require, or include each library separately:
+
+~~~html~~~
+<!DOCTYPE html>
+<html>
+<head> <!-- ... --> </head>
+<body>
+    <!-- ... -->
+    <script src="/path/to/black/core.js"></script>
+    <script src="/path/to/black/type.js"></script>
+    <script src="/path/to/black/obj.js"></script>
+    <script src="/path/to/black/list.js"></script>
+    <script src="/path/to/black/num.js"></script>
+    <script src="/path/to/black/fn.js"></script>
+    <script>
+        /\* Use Black here \*/
+    </script>
+</body>
+</html>
+~~~~~~~~~~
+
+§§ /blurb
+
+
+Though since Black is built using a modular design, you can just include
+the modules you will use to reduce the overhead. Though you need to pay
+attention to the dependencies of each module (listed in the API
+documentation for each one).
+
+All modules expect the global `black` object to be present when they
+execute. You can do so by either including the `core` module (and in
+this case you'll also get unpacking utilities) or by just defining a
+fresh object before including the modules:
+
+~~~html~~~
+<script type="text/javascript">
+    window.black = { }
+</script>
+<script src="/path/to/black/type.js"></script>
+<script src="/path/to/black/list.js"></script>
+<script type="text/javascript">
+    /\* use black.list here \*/
+</script>
+~~~~~~~~~~
+
+[Browserify]: https://github.com/substack/node-browserify
+
+
+## Dependencies
+
+※ overview/supported.html as supported
+
+{{ supported.deps }}
+
+
+## Resolving conflicts
+
+On platforms that don't support CommonJS modules, Black will take hold of
+the global `black`. If you happen to have something else named `black` in
+the global scope, you can resolve the conflict by calling
+`black.make_local`:
+
+~~~html~~~
+<script>
+    window.black = 'no u'
+</script>
+
+<!-- includes black -->
+<script src="/path/to/black/core.js"></script>
+<script src="/path/to/black/type.js"></script>
+<script src="/path/to/black/obj.js"></script>
+<script src="/path/to/black/list.js"></script>
+<script src="/path/to/black/num.js"></script>
+<script src="/path/to/black/fn.js"></script>
+
+<script>
+    alert(black) // [object Object]
+    var my_black = black.make_local()
+    alert(black) // 'no u'
+</script>
+~~~~~~~~~~
+
+## Special properties
+
+Black's unpacker relies on the `$black_box`, `$black_proto` and
+`$black_utils` properties for unpacking stuff to their respective
+places.
+
+§§ special
+
+-   `$black_box` defines which object will hold the generic functions for
+    a given module.
+    
+-   `$black_proto` defines which object will hold the own functions for
+    a given module, these will be methodized — the generic function will
+    be curried with the first parameter being the object instance.
+    
+-   `$black_utils` defines which functions of the module will be
+    exported as utilities, which by default will end up in the global
+    object.    
+
+§§ /special

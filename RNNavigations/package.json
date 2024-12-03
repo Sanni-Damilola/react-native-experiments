@@ -1,0 +1,8 @@
+{
+  "name": "rnnavigations",
+  "version": "1.0.0",
+  "homepage": "http://killdream.github.com/Black",
+  "author": "Quildreen Motta (http://killdream.github.com/)",
+  "main": "./src/black.js",
+  "private": true
+}
