@@ -1,4 +1,0 @@
-margin: 0 auto; is a common technique used to horizontally center an element within its parent container
-
-
-DisplayInline:No Line Breaks: Elements with display: inline; do not start on a new line. They flow within the same line of the text content that surrounds them.
