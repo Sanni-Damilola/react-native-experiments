@@ -1,11 +1,15 @@
 import { StyleSheet, View, Text } from "react-native"
-import React, { useContext, useLayoutEffect } from "react"
+import React, { useContext, useLayoutEffect, useState } from "react"
 import Button from "../components/ui/Button"
 import { GlobalStyles } from "../constants/styles"
 import { ExpenseContext } from "../store/expenses-context"
 import ExpenseForm from "../components/manageExpense/ExpenseForm"
+import { deleteExpense, storeExpense, updateExpense } from "../utils/http"
+import LoadingOverlay from "../components/ui/LoadingOverlay"
 
 const ManageExpense = ({ route, navigation }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const expensesCtx = useContext(ExpenseContext)
 
   const editedExpenseId = route.params?.expenseId
@@ -21,22 +25,39 @@ const ManageExpense = ({ route, navigation }) => {
     })
   }, [navigation, isEditing])
 
-  function deleteEExpenseHandler() {
-    expensesCtx.deleteExpense(editedExpenseId)
-    navigation.goBack()
+  async function deleteExpenseHandler() {
+    try {
+      setIsSubmitting(true)
+      await deleteExpense(editedExpenseId)
+      expensesCtx.deleteExpense(editedExpenseId)
+      navigation.goBack()
+    } catch (error) {
+      console.error("Error deleting expense:", error)
+    }
   }
 
-  function confirmHandler(expenseData) {
-    if (isEditing) {
-      expensesCtx.updateExpense(editedExpenseId, expenseData)
-    } else {
-      expensesCtx.addExpense(expenseData)
+  async function confirmHandler(expenseData) {
+    try {
+      setIsSubmitting(true)
+      if (isEditing) {
+        expensesCtx.updateExpense(editedExpenseId, expenseData)
+        await updateExpense(editedExpenseId, expenseData)
+      } else {
+        const id = await storeExpense(expenseData)
+        expensesCtx.addExpense({ ...expenseData, id })
+      }
+      navigation.goBack()
+    } catch (error) {
+      console.error("Error saving expense:", error)
     }
-    navigation.goBack()
   }
 
   function cancelHandler() {
     navigation.goBack()
+  }
+
+  if (isSubmitting) {
+    return <LoadingOverlay />
   }
 
   return (
@@ -57,7 +78,7 @@ const ManageExpense = ({ route, navigation }) => {
             icon="trash"
             color={GlobalStyles.colors.error500}
             size={27}
-            onPress={deleteEExpenseHandler}
+            onPress={deleteExpenseHandler}
             style={styles.deleteButton}
           />
         </View>
